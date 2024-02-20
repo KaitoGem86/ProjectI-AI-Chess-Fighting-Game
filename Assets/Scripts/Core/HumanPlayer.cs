@@ -20,7 +20,7 @@ namespace Chess.Game {
 
 
 		//Board for AIRefactoring
-		AIRefactoring.Board boardAI;
+		//AIRefactoring.Board boardAI;
 
 
 		public HumanPlayer (Board board) {
@@ -33,7 +33,7 @@ namespace Chess.Game {
 			boardUI = GameObject.FindObjectOfType<BoardUI> ();
 			cam = Camera.main;
 			this.board = board;
-			this.boardAI = boardAI;
+			//this.boardAI = boardAI;
 		}
 
 		public override void NotifyTurnToMove () {
@@ -87,7 +87,7 @@ namespace Chess.Game {
 					}
 				} else {
 					int targetIndex = BoardRepresentation.IndexFromCoord (targetSquare.fileIndex, targetSquare.rankIndex);
-					if (Piece.IsColour (boardAI.Square[targetIndex], boardAI.ColourToMove) && boardAI.Square[targetIndex] != 0) {
+					if (Piece.IsColour (board.Square[targetIndex], board.ColourToMove) && board.Square[targetIndex] != 0) {
 						CancelPieceSelection ();
 						HandlePieceSelection (mousePos);
 					} else {
@@ -115,13 +115,13 @@ namespace Chess.Game {
 			Move chosenMove = new Move ();
 
 			MoveGenerator moveGenerator = new MoveGenerator ();
-			AIRefactoring.MoveGenerator moveGeneratorAI = new AIRefactoring.MoveGenerator ();
+			//AIRefactoring.MoveGenerator moveGeneratorAI = new AIRefactoring.MoveGenerator ();
 			bool wantsKnightPromotion = Input.GetKey (KeyCode.LeftAlt);
 
-			//var legalMoves = moveGenerator.GenerateMoves (board);
-			var legalMovesAI = moveGeneratorAI.GenerateAllActions (boardAI);
-			for (int i = 0; i < legalMovesAI.Count; i++) {
-				var legalMove = legalMovesAI[i];
+			var legalMoves = moveGenerator.GenerateMoves (board);
+			//var legalMovesAI = moveGeneratorAI.GenerateAllActions (boardAI);
+			for (int i = 0; i < legalMoves.Count; i++) {
+				var legalMove = legalMoves[i];
 
 				if (legalMove.StartSquare == startIndex && legalMove.TargetSquare == targetIndex) {
 					if (legalMove.IsPromotion) {
@@ -133,7 +133,7 @@ namespace Chess.Game {
 						}
 					}
 					moveIsLegal = true;
-					chosenMove = new Move(legalMove.ActionValue);
+					chosenMove = new Move(legalMove.Value);
 					//	Debug.Log (legalMove.PromotionPieceType);
 					break;
 				}
@@ -152,8 +152,8 @@ namespace Chess.Game {
 				if (boardUI.TryGetSquareUnderMouse (mousePos, out selectedPieceSquare)) {
 					int index = BoardRepresentation.IndexFromCoord (selectedPieceSquare);
 					// If square contains a piece, select that piece for dragging
-					if (Piece.IsColour (boardAI.Square[index], boardAI.ColourToMove) ) {
-						boardUI.HighlightLegalMoves (boardAI, selectedPieceSquare);
+					if (Piece.IsColour (board.Square[index], board.ColourToMove) ) {
+						boardUI.HighlightLegalMoves (board, selectedPieceSquare);
 						boardUI.SelectSquare (selectedPieceSquare);
 						currentState = InputState.DraggingPiece;
 					}

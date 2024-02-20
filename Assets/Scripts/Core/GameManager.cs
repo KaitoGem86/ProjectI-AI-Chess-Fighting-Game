@@ -52,9 +52,9 @@ namespace Chess.Game {
 			boardUI = FindObjectOfType<BoardUI> ();
 			gameMoves = new List<Move> ();
 			board = new Board ();
-			boardAI = new AIRefactoring.Board();
+			//boardAI = new AIRefactoring.Board();
 			searchBoard = new Board ();
-			searchBoardAI = new AIRefactoring.Board();
+			//searchBoardAI = new AIRefactoring.Board();
 			aiSettings.diagnostics = new Search.SearchDiagnostics ();
 
 			NewGame (whitePlayerType, blackPlayerType);
@@ -62,7 +62,7 @@ namespace Chess.Game {
 		}
 
 		void Update () {
-			zobristDebug = boardAI.ZobristKey;
+			zobristDebug = board.ZobristKey;
 
 			if (gameResult == Result.Playing) {
 				LogAIDiagnostics ();
@@ -83,15 +83,15 @@ namespace Chess.Game {
 
 		void OnMoveChosen (Move move) {
 			bool animateMove = playerToMove is AIPlayer;
-			//board.MakeMove (move);
-			var chosenMove = new AIRefactoring.Move(move.Value);
-			boardAI.MakeAction(chosenMove);
-			//searchBoard.MakeMove (move);
-			searchBoardAI.MakeAction(chosenMove);
+			board.MakeMove (move);
+			//var chosenMove = new AIRefactoring.Move(move.Value);
+			//boardAI.MakeAction(chosenMove);
+			searchBoard.MakeMove (move);
+			//searchBoardAI.MakeAction(chosenMove);
 
 			gameMoves.Add (move);
 			onMoveMade?.Invoke (move);
-			boardUI.OnMoveMade (boardAI, move, animateMove);
+			boardUI.OnMoveMade (board, move, animateMove);
 
 			NotifyPlayerToMove ();
 		}
@@ -109,18 +109,18 @@ namespace Chess.Game {
 		void NewGame (PlayerType whitePlayerType, PlayerType blackPlayerType) {
 			gameMoves.Clear ();
 			if (loadCustomPosition) {
-				//board.LoadPosition (customPosition);
-				boardAI.LoadPosition(customPosition);
-				//searchBoard.LoadPosition (customPosition);
-				searchBoardAI.LoadPosition(customPosition);
+				board.LoadPosition (customPosition);
+				//boardAI.LoadPosition(customPosition);
+				searchBoard.LoadPosition (customPosition);
+				//searchBoardAI.LoadPosition(customPosition);
 			} else {
-				//board.LoadStartPosition ();
-				boardAI.LoadStartState();
-				//searchBoard.LoadStartPosition ();
-				searchBoardAI.LoadStartState();
+				board.LoadStartPosition ();
+				//.LoadStartState();
+				searchBoard.LoadStartPosition ();
+				//searchBoardAI.LoadStartState();
 			}
 			onPositionLoaded?.Invoke ();
-			boardUI.UpdatePosition (boardAI);
+			boardUI.UpdatePosition (board);
 			boardUI.ResetSquareColours ();
 
 			CreatePlayer (ref whitePlayer, whitePlayerType);
@@ -182,7 +182,7 @@ namespace Chess.Game {
 			PrintGameResult (gameResult);
 
 			if (gameResult == Result.Playing) {
-				playerToMove = (boardAI.WhiteToMove) ? whitePlayer : blackPlayer;
+				playerToMove = (board.WhiteToMove) ? whitePlayer : blackPlayer;
 				playerToMove.NotifyTurnToMove ();
 
 			} else {
@@ -214,34 +214,35 @@ namespace Chess.Game {
 		}
 
 		Result GetGameState () {
-			AIRefactoring.MoveGenerator moveGenerator = new AIRefactoring.MoveGenerator ();
-			var moves = moveGenerator.GenerateAllActions (boardAI);
+			//AIRefactoring.MoveGenerator moveGenerator = new AIRefactoring.MoveGenerator ();
+			MoveGenerator moveGenerator = new MoveGenerator();
+			var moves = moveGenerator.GenerateMoves (board);
 
 			// Look for mate/stalemate
 			if (moves.Count == 0) {
 				if (moveGenerator.InCheck ()) {
-					return (boardAI.WhiteToMove) ? Result.WhiteIsMated : Result.BlackIsMated;
+					return (board.WhiteToMove) ? Result.WhiteIsMated : Result.BlackIsMated;
 				}
 				return Result.Stalemate;
 			}
 
 			// Fifty move rule
-			if (boardAI.fiftyMoveCounter >= 100) {
+			if (board.fiftyMoveCounter >= 100) {
 				return Result.FiftyMoveRule;
 			}
 
 			// Threefold repetition
-			int repCount = boardAI.RepetitionPositionHistory.Count ((x => x == board.ZobristKey));
+			int repCount = board.RepetitionPositionHistory.Count ((x => x == board.ZobristKey));
 			if (repCount == 3) {
 				return Result.Repetition;
 			}
 
 			// Look for insufficient material (not all cases implemented yet)
-			int numPawns = boardAI.pawns[AIRefactoring.Board.WhiteIndex].Count + boardAI.pawns[Board.BlackIndex].Count;
-			int numRooks = boardAI.rooks[Board.WhiteIndex].Count + boardAI.rooks[Board.BlackIndex].Count;
-			int numQueens = boardAI.queens[Board.WhiteIndex].Count + boardAI.queens[Board.BlackIndex].Count;
-			int numKnights = boardAI.knights[Board.WhiteIndex].Count + boardAI.knights[Board.BlackIndex].Count;
-			int numBishops = boardAI.bishops[Board.WhiteIndex].Count + boardAI.bishops[Board.BlackIndex].Count;
+			int numPawns = board.pawns[AIRefactoring.Board.WhiteIndex].Count + board.pawns[Board.BlackIndex].Count;
+			int numRooks = board.rooks[Board.WhiteIndex].Count + board.rooks[Board.BlackIndex].Count;
+			int numQueens = board.queens[Board.WhiteIndex].Count + board.queens[Board.BlackIndex].Count;
+			int numKnights = board.knights[Board.WhiteIndex].Count + board.knights[Board.BlackIndex].Count;
+			int numBishops = board.bishops[Board.WhiteIndex].Count + board.bishops[Board.BlackIndex].Count;
 
 			if (numPawns + numRooks + numQueens == 0) {
 				if (numKnights == 1 || numBishops == 1) {
@@ -258,9 +259,9 @@ namespace Chess.Game {
 			}
 
 			if (playerType == PlayerType.Human) {
-				player = new HumanPlayer (board, boardAI);
+				player = new HumanPlayer (board);
 			} else {
-				player = new AIPlayer (searchBoard, searchBoardAI, aiSettings);
+				player = new AIPlayer (searchBoard, aiSettings);
 			}
 			player.onMoveChosen += OnMoveChosen;
 		}

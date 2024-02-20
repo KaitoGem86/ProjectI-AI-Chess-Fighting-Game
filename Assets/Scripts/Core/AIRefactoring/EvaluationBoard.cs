@@ -16,8 +16,9 @@ namespace AIRefactoring{
 		// The position is assumed to be 'quiet', i.e no captures are available that could drastically affect the evaluation.
 		// The score that's returned is given from the perspective of whoever's turn it is to move.
 		// So a positive score means the player who's turn it is to move has an advantage, while a negative score indicates a disadvantage.
-		public int Evaluate (Board board) {
-			this.env = board;
+		public override int Evaluate (Enviroment<Move> env) {
+			this.env = env;
+
 			int whiteEval = 0;
 			int blackEval = 0;
 

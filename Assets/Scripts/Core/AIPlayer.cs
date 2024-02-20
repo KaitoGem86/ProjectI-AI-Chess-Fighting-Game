@@ -63,9 +63,9 @@
 			moveFound = false;
 
 			Move bookMove = Move.InvalidMove;
-			if (settings.useBook && boardAI.plyCount <= settings.maxBookPly) {
-				if (book.HasPosition (boardAI.ZobristKey)) {
-					bookMove = book.GetRandomBookMoveWeighted (boardAI.ZobristKey);
+			if (settings.useBook && board.plyCount <= settings.maxBookPly) {
+				if (book.HasPosition (board.ZobristKey)) {
+					bookMove = book.GetRandomBookMoveWeighted (board.ZobristKey);
 				}
 			}
 
@@ -78,7 +78,7 @@
 			} else {
 			
 				search.searchDiagnostics.isBook = true;
-				search.searchDiagnostics.moveVal = Chess.PGNCreator.NotationFromMove (FenUtility.CurrentFen(boardAI), bookMove);
+				search.searchDiagnostics.moveVal = Chess.PGNCreator.NotationFromMove (FenUtility.CurrentFen(board), bookMove);
 				settings.diagnostics = search.searchDiagnostics;
 				Task.Delay (bookMoveDelayMillis).ContinueWith ((t) => PlayBookMove (bookMove));
 				
@@ -86,15 +86,15 @@
 		}
 
 		void StartSearch () {
-			//search.StartSearch ();
-			searchAI.StartSearch();
+			search.StartSearch ();
+			//searchAI.StartSearch();
 			moveFound = true;
 		}
 
 		void StartThreadedSearch () {
 			//Thread thread = new Thread (new ThreadStart (search.StartSearch));
 			//thread.Start ();
-			Task.Factory.StartNew (() => searchAI.StartSearch (), TaskCreationOptions.LongRunning);
+			Task.Factory.StartNew (() => search.StartSearch (), TaskCreationOptions.LongRunning);
 
 			if (!settings.endlessSearchMode) {
 				cancelSearchTimer = new CancellationTokenSource ();
@@ -106,8 +106,8 @@
 		// Note: called outside of Unity main thread
 		void TimeOutThreadedSearch () {
 			if (cancelSearchTimer == null || !cancelSearchTimer.IsCancellationRequested) {
-				//search.EndSearch ();
-				searchAI.EndSearch();
+				search.EndSearch ();
+				//searchAI.EndSearch();
 			}
 		}
 

@@ -20,7 +20,7 @@ namespace Chess.Game {
 
 		void Awake () {
 			moveGenerator = new MoveGenerator ();
-			moveGeneratorAI = new AIRefactoring.MoveGenerator ();
+			//moveGeneratorAI = new AIRefactoring.MoveGenerator ();
 			CreateBoardUI ();
 
 		}
