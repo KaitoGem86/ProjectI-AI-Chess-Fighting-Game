@@ -4,7 +4,7 @@
 	using UnityEngine;
 	using static System.Math;
 
-	public class Search { // class này cần phải được viết lại một cách tổng quát, Không cần viết lại hàm QuiescenceSearch
+	public class Search {
 
 		const int transpositionTableSize = 64000;
 		const int immediateMateScore = 100000;
@@ -13,10 +13,10 @@
 
 		public event System.Action<Move> onSearchComplete;
 
-		TranspositionTable tt; // là cấu trúc dữ liệu cần thiết, không cần phải chỉnh sửa
-		MoveGenerator moveGenerator; // thay vì MoveGenerator, sử dụng 1 abstract class MoveGenerator
+		TranspositionTable tt;
+		MoveGenerator moveGenerator;
 
-		Move bestMoveThisIteration; // Cố gắng định nghĩa 1 class Move tổng quát
+		Move bestMoveThisIteration;
 		int bestEvalThisIteration;
 		Move bestMove;
 		int bestEval;
@@ -26,8 +26,8 @@
 		Move invalidMove;
 		MoveOrdering moveOrdering;
 		AISettings settings;
-		Board board; // thay vì board, sử dụng 1 abstract class Board
-		Evaluation evaluation; // thay vì evaluation, sử dụng 1 abstract class Evaluation
+		Board board; 
+		Evaluation evaluation; 
 
 		// Diagnostics
 		public SearchDiagnostics searchDiagnostics;
